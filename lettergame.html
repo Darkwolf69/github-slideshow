@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function referCheck() {
+	var referrer = document.referrer;
+	if (referrer) {
+		gombKirajzol();
+	} else {
+		window.location.href = "belepes.php";
+	}
+	loginBeir();
+}
+
+var userName;
+
+function loginBeir() {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			document.getElementById("login").innerHTML = this.responseText;
+			document.getElementById("loginfent").innerHTML = this.responseText;
+			userName = this.responseText;
+		}
+	};
+  xhttp.open("GET", "loginnev.txt?t=" + Math.random(), true);
+  xhttp.send();
+}
+
+
+function wordCheck(word, point) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			;
+		}
+	};
+	xhttp.open("GET", "wordcheck.php?word=" + word +"&point=" + point, true);
+	xhttp.send();
+}
+
+function isTheWordRightCheckDuringTurn(point) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var isRight = this.responseText;
+			if (isRight == "right") {
+				document.getElementById("kijelzo").innerHTML = "A kirakott szó megfelel<br>a szabályoknak és<br>" + point + " pontot ér.";
+			} else if (isRight == "wrong") {
+				document.getElementById("kijelzo").innerHTML = "A kirakott szó sajnos<br>nem szerepel a<br>szótárunkban.";
+			}
+		}
+	};
+	xhttp.open("GET", "wordCheckResponse.txt?t=" + Math.random(), true);
+	xhttp.send();
+}
+
+function isTheWordRightCheckEndOfTurn(word, point) {
+	word = word.toLowerCase();
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var isRight = this.responseText;
+			if (isRight == "right") {
+				document.getElementById("kijelzo").innerHTML = userName + " ebban a körben<br>a " + word + " szót rakta ki<br>és ezzel " + point + " pontot<br>szerzett.";
+			} else if (isRight == "wrong") {
+				document.getElementById("kijelzo").innerHTML = userName + " ebben a körben nem<br>tudott szót kirakni.";
+			}
+		}
+	};
+	xhttp.open("GET", "wordCheckResponse.txt?t=" + Math.random(), true);
+	xhttp.send();
+}
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Játék a betűkkel</title>
+<style>
+body {
+	background-color: BlanchedAlmond;
+}
+</style>
+<style>
+#canvas1 {
+	border: 2px solid #000000;
+	background-color: #F4A460;
+	border-radius: 10px;
+}
+</style>
+<style>
+#szotar {
+	display: inline-block;
+	background-color: #696969;
+	border: 2px solid black;
+	color: white;
+	padding: 8px 16px;
+	border-radius: 25px;
+	text-align: center;
+	text-decoration: none;
+	outline: none;
+	display: inline-block;
+	font-size: 14px;
+	font-family: "arial";
+	letter-spacing: 3px;
+	margin: 4px 2px;
+	cursor: pointer;
+}
+
+#szotar:hover {
+	background-color: #696969;
+}
+
+#szotar:active {
+	background-color: #696969;
+	box-shadow: 0 3px #666;
+	transform: translateY(2px);
+}
+</style>
+<style>
+#OK {
+	background-color: #D3D3D3;
+	border: 2px solid black;
+	color: white;
+	padding: 8px 5px;
+	border-radius: 5px;
+	text-align: center;
+	text-decoration: none;
+	outline: none;
+	display: inline-block;
+	font-size: 25px;
+	font-family: "showcard gothic";
+	letter-spacing: 3px;
+	margin: 4px 2px;
+	cursor: pointer;
+}
+
+#OK:hover {
+	background-color: #D3D3D3
+}
+
+#OK:active {
+	background-color: #D3D3D3;
+	box-shadow: 0 3px #778899;
+	transform: translateY(2px);
+}
+
+#login, #turnCounter, #userScore {
+	font-family: arial;
+	font-weight: bold;
+	font-size: 18px;
+}
+
+p {
+	font-family: arial;
+	white-space: pre;
+	font-size: 15px;
+	color: yellow;
+}
+
+#timer {
+	font-family: arial;
+	font-size: 22px;
+	font-weight: bold;
+	color: #00FF00;
+}
+
+#kijelzo, loginfent {
+	position:absolute;
+	top:25px;
+	left:30px;
+	width:152px;
+	height:90px;
+}
+</style>
+
+</head>
+
+<body onload="referCheck();">
+
+<div style="position: relative;">
+    <canvas id="canvas1" width="700" height="480" style="position: absolute; z-index: 0;">
+    </canvas> 
+    <canvas id="canvas2" width="700" height="480" style="position: absolute; top:2px; left:2px; z-index: 1; background-color: transparent;">
+    </canvas>
+	<canvas id="canvas3" width="700" height="480" style="position: absolute; top:2px; left:2px; z-index: 2; background-color: transparent;">
+    </canvas>
+</div>
+
+<img src="egrikep.jpg"; style="position: absolute; top:160px; left:15px; width:100px; height:130px; z-index: 2"></img>
+<button id="szotar"; type="button"; style="position:absolute; top:408px; left:18px; z-index: 3;"></button>
+<button id="OK"; type="button"; style="position:absolute; top:415px; left:134px; z-index: 3;"></button>
+
+<div id="login" style="position:absolute; top:336px; left:30px;"></div>
+<div id="turnCounter" style="position:absolute; top:298px; left:35px;"></div>
+<div id="userScore" style="position:absolute; top:334px; left:170px;"></div>
+
+<p id="kijelzo">
+    Üdvözlöm, kedves
+         <span id="loginfent">játékosunk</span>.
+</p>
+
+<div id="timer"; style="position:absolute; top:237px; left:141px; z-index: 3"></div>
+
+<script>
+
+function gombKirajzol() {
+	document.getElementById("szotar").innerHTML = "SZÓTÁR";
+	document.getElementById("OK").innerHTML = "OK";
+	startGame();
+}
+
+function startGame() {
+	myGameArea.start();
+}
+		
+var myGameArea = {
+	canvas1 : document.getElementById("canvas1"),
+	canvas2 : document.getElementById("canvas2"),
+	start : function() {
+		this.context1 = this.canvas1.getContext("2d");
+		this.context2 = this.canvas2.getContext("2d");
+		document.body.insertBefore(this.canvas1, document.body.childNodes[0]);
+		this.interval = setInterval(updateGameArea, 20);
+		this.ime = setTimeout(elso10BetuKiir, 3000);
+	},
+	clear : function() {
+		this.context1.clearRect(0, 0, this.canvas1.width, this.canvas1.height);
+		//játéktér kirajzolása
+		this.context1.beginPath();
+		this.context1.strokeStyle = "#800000";
+		this.context1.lineWidth = 10;
+		this.context1.moveTo(200,0);
+		this.context1.lineTo(200,480);
+		this.context1.stroke();
+		
+		this.context1.moveTo(200,380);
+		this.context1.lineTo(700,380);
+		this.context1.stroke();
+		this.context1.closePath();
+		this.context1.beginPath();
+		this.context1.strokeStyle = "#696969";
+		this.context1.lineWidth = 2;
+		var i;
+		//oszlopok kirajzolása
+		for (i=210; i<=690; i+=30) {
+			this.context1.moveTo(i,10); this.context1.lineTo(i,370);
+			this.context1.stroke();
+		}
+		//sorok kirajzolása
+		for (i=10; i<=370; i+=30) {
+			this.context1.moveTo(210,i); this.context1.lineTo(690,i);
+			this.context1.stroke();
+		}
+		this.context1.closePath();
+		//oldalsó menü kirajzolása
+		this.context1.beginPath();
+		this.context1.fillStyle = "#808080";
+		this.context1.fillRect(6,6,182,140);
+		this.context1.fill();
+		this.context1.stroke();
+		
+		this.context1.fillStyle = "#F0FFFF";
+		this.context1.fillRect(110,210,85,60);
+		this.context1.fill();
+		this.context1.stroke();
+		
+		this.context1.fillStyle = "#808080";
+		this.context1.fillRect(120,220,68,40);
+		this.context1.fill();
+		this.context1.stroke();
+		
+		this.context1.fillStyle = "#F0FFFF";
+		this.context1.fillRect(6,280,182,195);
+		this.context1.fill();
+		this.context1.stroke();
+		
+		this.context1.font = "18px Arial";
+		this.context1.fillStyle = "black";
+		this.context1.fillText("F O R D U L Ó", 55, 304);
+		this.context1.closePath();
+		
+		this.context1.beginPath();
+		this.context1.lineWidth = 3;
+		this.context1.strokeStyle = "black";
+		this.context1.fillStyle = "#DEB887";
+		this.context1.arc(32, 299, 15, 0, 2 * Math.PI);
+		this.context1.stroke();
+		this.context1.fill();
+		this.context1.closePath();
+		
+		this.context1.beginPath();
+		this.context1.fillStyle = "#DEB887";
+		this.context1.fillRect(15,320,130,32);
+		this.context1.fill();
+		this.context1.stroke();
+		this.context1.closePath();
+
+		this.context1.beginPath();
+		this.context1.fillStyle = "#DEB887";
+		this.context1.fillRect(15,360,130,32);
+		this.context1.fill();
+		this.context1.stroke();
+		this.context1.closePath();
+		
+		this.context1.beginPath();
+		this.context1.lineWidth = 3;
+		this.context1.strokeStyle = "black";
+		this.context1.fillStyle = "#DEB887";
+		this.context1.arc(165, 335, 20, 0, 2 * Math.PI);
+		this.context1.stroke();
+		this.context1.fill();
+		this.context1.closePath();
+		
+		this.context1.beginPath();
+		this.context1.lineWidth = 3;
+		this.context1.strokeStyle = "black";
+		this.context1.fillStyle = "#DEB887";
+		this.context1.arc(165, 377, 20, 0, 2 * Math.PI);
+		this.context1.stroke();
+		this.context1.fill();
+		this.context1.closePath();
+	},
+	clearBetuk : function() {
+		kezdoj = new component(28, 28, "#8B0000", 391, 71, "j", 10, "white");
+		kezdoá = new component(28, 28, "#8B0000", 391, 101, "á", 10, "white");
+		kezdot1 = new component(28, 28, "#8B0000", 391, 131, "t", 10, "white");
+		kezdoé = new component(28, 28, "#8B0000", 391, 161, "é", 10, "white");
+		kezdok1 = new component(28, 28, "#8B0000", 391, 191, "k", 10, "white");
+		kezdoa = new component(28, 28, "#8B0000", 331, 251, "a", 10, "white");
+		kezdob = new component(28, 28, "#8B0000", 421, 281, "b", 10, "white");
+		kezdoe1 = new component(28, 28, "#8B0000", 451, 281, "e", 10, "white");
+		kezdot2 = new component(28, 28, "#8B0000", 481, 281, "t", 10, "white");
+		kezdoű = new component(28, 28, "#8B0000", 511, 281, "ű", 10, "white");
+		kezdok2 = new component(28, 28, "#8B0000", 541, 281, "k", 10, "white");
+		kezdok3 = new component(28, 28, "#8B0000", 571, 281, "k", 10, "white");
+		kezdoe2 = new component(28, 28, "#8B0000", 601, 281, "e", 10, "white");
+		kezdol = new component(28, 28, "#8B0000", 631, 281, "l", 10, "white");
+	},
+	clearAfterRightWord : function(xparam, yparam, letter) {
+		fixedLetters.push({x:xparam, y:yparam, width:28, height:28, betu:letter, color:"#8B0000", color2:"white"});
+	}
+}
+
+var movingLetterArea = {
+	canvas3 : document.getElementById("canvas3"),
+	start : function() {
+		this.context3 = this.canvas3.getContext("2d");
+		this.BB = this.canvas3.getBoundingClientRect();
+		this.offsetX = this.BB.left;
+		this.offsetY = this.BB.top;
+		this.WIDTH = this.canvas3.width;
+		this.HEIGHT = this.canvas3.height;
+		this.dragok = false;
+		this.startX;
+		this.startY;
+	}
+}
+
+
+// redraw the scene
+function draw() {
+		clear();
+		// redraw each shape in the shapes[] array
+		for(var i=0; i<shapes.length; i++){
+			rect(shapes[i]);
+		}
+	}
+
+// clear the scene
+function clear() {
+		var ctx = movingLetterArea.context3;
+		ctx.clearRect(0, 0, movingLetterArea.WIDTH, movingLetterArea.HEIGHT);
+	}
+
+// draw a movable letter rect
+function rect(r) {
+	var ctx = movingLetterArea.context3;
+	ctx.fillStyle = r.color;
+	ctx.fillRect(r.x, r.y, r.width, r.height);
+	
+	ctx.fillStyle = r.colorszam;
+	ctx.font = "bold 24px Arial";
+	ctx.fillText(r.betu, r.x+4, r.y+21);
+
+	ctx.font = "12px Arial";
+	ctx.fillText(r.szam, r.x+21, r.y+26);
+}
+
+
+var fixedLetters = [];
+
+
+function updateFixedLetters() {
+	// redraw each shape in the fixedLetters[] array
+	for(var i=0; i<fixedLetters.length; i++){
+		drawFixedLetter(fixedLetters[i]);
+	}
+}
+
+
+function drawFixedLetter(comp) {
+	var ctx = myGameArea.context2;
+	ctx.fillStyle = comp.color;
+	ctx.fillRect(comp.x, comp.y, comp.width, comp.height);
+	
+	ctx.fillStyle = comp.color2;
+	ctx.font = "bold 24px Arial";
+	ctx.fillText(comp.betu, comp.x+8, comp.y+22);
+}
+
+
+function component(width, height, color, x, y, betu, szam, color2) {
+	this.width = width;
+	this.height = height;
+	this.x = x;
+	this.y = y;
+	this.isDragging = false;
+	this.update = function() {
+		ctx = myGameArea.context2;
+		ctx.fillStyle = color;
+		ctx.fillRect(this.x, this.y, this.width, this.height);
+		ctx.fillStyle = color2;
+		ctx.font = "bold 24px Arial";
+		ctx.fillText(betu, this.x+8, this.y+22);
+	}
+}
+
+function generateRandomLetter(length) {
+	var letter = "";
+	var possible = "aábcdeéfghiíjklmnoóöőprstuúüűvxyz";
+	for (var i = 0; i < length; i++) {
+		letter += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	return letter;
+}
+
+function updateGameArea() {
+	myGameArea.clear();
+}
+
+function updateJABBetuk() {
+	myGameArea.clearBetuk();
+	kezdoj.update();
+	kezdoá.update();
+	kezdot1.update();
+	kezdoé.update();
+	kezdok1.update();
+	kezdoa.update();
+	kezdob.update();
+	kezdoe1.update();
+	kezdot2.update();
+	kezdoű.update();
+	kezdok2.update();
+	kezdok3.update();
+	kezdoe2.update();
+	kezdol.update();
+	window.requestAnimationFrame(updateJABBetuk);
+}
+window.requestAnimationFrame(updateJABBetuk);
+
+
+function elso10BetuKiir() {
+	document.getElementById("kijelzo").innerHTML = "Íme az első 10 betű...";
+	//iras.style.position = "absolute: top:30px; left:40px"; hogy pozícionálom lejjebb a function-nel a szöveget???
+	setTimeout(elso10BetuSzovegTorol, 3000);
+}
+
+function elso10BetuSzovegTorol() {
+	document.getElementById("kijelzo").innerHTML = "";
+	setInterval(updateJABBetuk, 20);
+	document.getElementById("turnCounter").innerHTML = turnCounterOnScreen;
+	document.getElementById("userScore").innerHTML = "0";
+	movingLetterArea.start();
+	Random10BetuKirajzol();
+}
+
+
+function oraEsBetukLeallit() {
+	removeEventListeners();
+	clearInterval(fordulo);
+	clearInterval(ora);
+	document.getElementById("kijelzo").innerHTML = "Rendben.";
+	endOfTurn();
+	setTimeout(wordCheckerThings, 2000);
+}
+
+function newTurn() {
+	OKButtonClicked = false;
+	emptyLetters();
+	pushLetters();
+	start = Date.now();
+	
+	//ora = setInterval(f,1000);
+	clock();
+	fordulo = setInterval(draw, 20);
+	addEventListeners();
+	
+	document.getElementById("timer").style.color = "#00FF00";
+	turnCounterOnScreen ++;
+	document.getElementById("turnCounter").innerHTML = turnCounterOnScreen;
+	document.getElementById("userScore").innerHTML = userPoints;
+}
+
+
+var userWord;
+var userPoints = 0;
+var turnCounterOnScreen = 1;
+
+var shapes = [];
+
+var onTableLetters = [
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, "J", 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, "Á", 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, "T", 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, "É", 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, "K", 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, "A", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, "B", "E", "T", "Ű", "K", "K", "E", "L", 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+];
+
+var onTablePoints = [
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+];
+
+
+function wordCheckDuringTurn() {
+
+	var UserWordAndPoint = spelledWordCheckInRows();
+
+	if (UserWordAndPoint.wordParameter == "Fail!") {
+		document.getElementById("kijelzo").innerHTML = "A kirakott szó sajnos<br>nem felel meg a<br>szabályoknak.";
+		setTimeout(function(){ document.getElementById("kijelzo").innerHTML = ""; }, 2000);
+	} else if (UserWordAndPoint.wordParameter == "") {
+		UserWordAndPoint = spelledWordCheckInColumns();
+		if (UserWordAndPoint.wordParameter == "Fail!") {
+			document.getElementById("kijelzo").innerHTML = "A kirakott szó sajnos<br>nem felel meg a<br>szabályoknak.";
+			setTimeout(function(){ document.getElementById("kijelzo").innerHTML = ""; }, 2000);
+		} else if (UserWordAndPoint.wordParameter == "") {
+			document.getElementById("kijelzo").innerHTML = "A kirakott szó sajnos<br>nem felel meg a<br>szabályoknak.";
+			setTimeout(function(){ document.getElementById("kijelzo").innerHTML = ""; }, 2000);
+		} else if (UserWordAndPoint.wordParameter != "Fail!") {
+			//ajax query for word checking
+			wordCheck(UserWordAndPoint.wordParameter, UserWordAndPoint.pointParameter);
+			isTheWordRightCheckDuringTurn(UserWordAndPoint.pointParameter);
+			setTimeout(function(){ document.getElementById("kijelzo").innerHTML = ""; }, 2000);
+		}
+	} else if (UserWordAndPoint.wordParameter != "Fail!") {
+		//ajax query for word checking
+		wordCheck(UserWordAndPoint.wordParameter, UserWordAndPoint.pointParameter);
+		isTheWordRightCheckDuringTurn(UserWordAndPoint.pointParameter);
+		setTimeout(function(){ document.getElementById("kijelzo").innerHTML = ""; }, 2000);
+	}
+}
+
+
+
+function spelledWordCheckInRows() {
+	var wordsInLines = ["", "", "", "", "", "", "", "", "", "", "", ""];
+	var pointsInLines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	var singleLetterInLines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	var isUpperCase = false;
+	var isLowerCase = false;
+	var rowLength = 12;
+	var columnLength = 16;
+	//Letter check in rows
+	//rows letter check in first column
+	for (var k=0; k<rowLength; k++) {
+		if (onTableLetters[k][0] != 0 && onTableLetters[k][1] != 0) {
+			wordsInLines[k] = wordsInLines[k].concat(onTableLetters[k][0]); pointsInLines[k] += onTablePoints[k][0];
+		} else if (onTableLetters[k][0] != 0 && onTableLetters[k][1] == 0 && onTableLetters[k][0] != onTableLetters[k][0].toUpperCase()) {
+			singleLetterInLines[k] +=1;
+		} else ;
+		//rows letter check between first and last column
+		for (var j=1; j<columnLength-1; j++) {
+			if (wordsInLines[k].length <= 1) {
+				if (onTableLetters[k][j] != 0 && onTableLetters[k][j-1] != 0) {
+					wordsInLines[k] = wordsInLines[k].concat(onTableLetters[k][j]); pointsInLines[k] += onTablePoints[k][j];
+				} else if (onTableLetters[k][j] != 0 && onTableLetters[k][j+1] != 0) {
+					wordsInLines[k] = wordsInLines[k].concat(onTableLetters[k][j]); pointsInLines[k] += onTablePoints[k][j];
+				} else if (onTableLetters[k][j] != 0 && onTableLetters[k][j+1] == 0 && onTableLetters[k][j-1] == 0 && onTableLetters[k][j] != onTableLetters[k][j].toUpperCase()) {
+					singleLetterInLines[k] +=1;
+				} else {continue;}
+			} else if (onTableLetters[k][j] != 0 && onTableLetters[k][j-1] != 0) {
+				wordsInLines[k] = wordsInLines[k].concat(onTableLetters[k][j]); pointsInLines[k] += onTablePoints[k][j];
+			} else if (onTableLetters[k][j] != 0 && onTableLetters[k][j-1] == 0) {
+				wordsInLines[k] = "Fail!";
+				console.log("Fail1");
+				for(var index1=0; index1<onTableLetters.length; index1++) {
+					for(var index2=0; index2<onTableLetters[0].length; index2++) {
+						if(onTableLetters[index1][index2] != 0) {
+							if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toLowerCase()) {
+								onTableLetters[index1][index2] = 0;
+							}
+						}
+					}
+				}
+				for(var index1=0; index1<onTablePoints.length; index1++) {
+					for(var index2=0; index2<onTablePoints[0].length; index2++) {
+						if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+							onTablePoints[index1][index2] = 0;
+						}
+					}
+				}
+				console.log(singleLetterInLines);
+				return {wordParameter : wordsInLines[k], pointParameter : 0}; //document.getElementById("kijelzo").innerHTML = "Nem szabályos a szókirakás!";
+			} else ;
+		}
+		//rows letter check in last column
+		if (wordsInLines[k].length >= 1) {
+			if (onTableLetters[k][15] != 0 && onTableLetters[k][14] != 0) {
+				wordsInLines[k] = wordsInLines[k].concat(onTableLetters[k][15]); pointsInLines[k] += onTablePoints[k][15];
+			} else if (onTableLetters[k][15] != 0 && onTableLetters[k][14] == 0) {
+				wordsInLines[k] = "Fail!";
+				console.log("Fail2");
+				for(var index1=0; index1<onTableLetters.length; index1++) {
+					for(var index2=0; index2<onTableLetters[0].length; index2++) {
+						if(onTableLetters[index1][index2] != 0) {
+							if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+								onTableLetters[index1][index2] = 0;
+							}
+						}
+					}
+				}
+				for(var index1=0; index1<onTablePoints.length; index1++) {
+					for(var index2=0; index2<onTablePoints[0].length; index2++) {
+						if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+							onTablePoints[index1][index2] = 0;
+						}
+					}
+				}
+				console.log(singleLetterInLines);
+				return {wordParameter : wordsInLines[k], pointParameter : 0}; //document.getElementById("kijelzo").innerHTML = "Nem szabályos a szókirakás!";
+			} else ;
+		} else if (onTableLetters[k][15] != 0 && onTableLetters[k][14] == 0 && onTableLetters[k][15] != onTableLetters[k][15].toUpperCase()) {
+			singleLetterInLines[k] +=1;
+		} else ;
+		//check if there is no single letters around a spelled word
+		if (wordsInLines[k].length > 1 && singleLetterInLines[k] >= 1) {
+			wordsInLines[k] = "Fail!";
+			console.log("Fail3");
+			for(var index1=0; index1<onTableLetters.length; index1++) {
+				for(var index2=0; index2<onTableLetters[0].length; index2++) {
+					if(onTableLetters[index1][index2] != 0) {
+						if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+							onTableLetters[index1][index2] = 0;
+						}
+					}
+				}
+			}
+			for(var index1=0; index1<onTablePoints.length; index1++) {
+				for(var index2=0; index2<onTablePoints[0].length; index2++) {
+					if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+						onTablePoints[index1][index2] = 0;
+					}
+				}
+			}
+			console.log(singleLetterInLines);
+			return {wordParameter : wordsInLines[k], pointParameter : 0}; //document.getElementById("kijelzo").innerHTML = "Nem szabályos a szókirakás!";
+		} else if (singleLetterInLines[k] > 1) {
+			wordsInLines[k] = "Fail!";
+			console.log("Fail4");
+			for(var index1=0; index1<onTableLetters.length; index1++) {
+				for(var index2=0; index2<onTableLetters[0].length; index2++) {
+					if(onTableLetters[index1][index2] != 0) {
+						if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toLowerCase()) {
+							onTableLetters[index1][index2] = 0;
+						}
+					}
+				}
+			}
+			for(var index1=0; index1<onTablePoints.length; index1++) {
+				for(var index2=0; index2<onTablePoints[0].length; index2++) {
+					if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+						onTablePoints[index1][index2] = 0;
+					}
+				}
+			}
+			console.log(singleLetterInLines);
+			return {wordParameter : wordsInLines[k], pointParameter : 0}; //document.getElementById("kijelzo").innerHTML = "Nem szabályos a szókirakás!";
+		} else ;
+		//check if there is a spelled word in this line and is it correct or not
+		if (wordsInLines[k].length > 1) {
+			for (var i=0; i<wordsInLines[k].length; i++) {
+				isUpperCase = false; isLowerCase = false;
+				var character = wordsInLines[k].charAt(i);
+				if (character == character.toUpperCase()) {
+					isUpperCase = true; break;
+				} else continue ;
+			}
+			for (var i=0; i<wordsInLines[k].length; i++) {
+				var character = wordsInLines[k].charAt(i);
+				if (character == character.toLowerCase()) {
+					isLowerCase = true; break;
+				} else continue ;
+			}
+			if (isUpperCase == true && isLowerCase == true) {
+				;
+			} else if (isUpperCase == true && isLowerCase == false) {
+				wordsInLines[k] = "";
+			} else {
+				wordsInLines[k] = "Fail!";
+				console.log("Fail5");
+				for(var index1=0; index1<onTableLetters.length; index1++) {
+					for(var index2=0; index2<onTableLetters[0].length; index2++) {
+						if (onTableLetters[index1][index2] != 0) {
+							if (onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+								onTableLetters[index1][index2] = 0;
+							}
+						}
+					}
+				}
+				for(var index1=0; index1<onTablePoints.length; index1++) {
+					for(var index2=0; index2<onTablePoints[0].length; index2++) {
+						if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+							onTablePoints[index1][index2] = 0;
+						}
+					}
+				}
+				console.log(singleLetterInLines);
+				return {wordParameter : wordsInLines[k], pointParameter : 0}; } //document.getElementById("kijelzo").innerHTML = "Nem szabályos a szókirakás!"; }
+		} else ;
+	}
+
+	//check if there is only one right word on the table or there is no right word spelled
+	var spelledWord = "";
+	var temporaryPointCounter = 0;
+	var rightWord = 0;
+	for (var i=0; i<rowLength; i++) {
+		if (wordsInLines[i] != "") {
+			rightWord += 1;
+			rightWordPlace = i;
+			rightPointPlace = i;
+		}
+	}
+	if (rightWord == 1) {
+		for (var i=0; i<singleLetterInLines.length; i++) {
+			if (singleLetterInLines[i] > 0) {
+				spelledWord = "Fail!";
+				console.log("Fail6");
+				for(var index1=0; index1<onTableLetters.length; index1++) {
+					for(var index2=0; index2<onTableLetters[0].length; index2++) {
+						if(onTableLetters[index1][index2] != 0) {
+							if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+								onTableLetters[index1][index2] = 0;
+							}
+						}
+					}
+				}
+				for(var index1=0; index1<onTablePoints.length; index1++) {
+					for(var index2=0; index2<onTablePoints[0].length; index2++) {
+						if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+							onTablePoints[index1][index2] = 0;
+						}
+					}
+				}
+				temporaryPointCounter = 0;
+			} else ;
+		}
+		if (spelledWord != "Fail!") {
+			spelledWord = wordsInLines[rightWordPlace];
+			temporaryPointCounter = pointsInLines[rightPointPlace];
+		} else ;
+	} else if (rightWord == 0) {
+		spelledWord = "";
+		temporaryPointCounter = 0;
+	} else {
+		spelledWord = "Fail!";
+		console.log("Fail7");
+		for(var index1=0; index1<onTableLetters.length; index1++) {
+			for(var index2=0; index2<onTableLetters[0].length; index2++) {
+				if(onTableLetters[index1][index2] != 0) {
+					if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+						onTableLetters[index1][index2] = 0;
+					}
+				}
+			}
+		}
+		for(var index1=0; index1<onTablePoints.length; index1++) {
+			for(var index2=0; index2<onTablePoints[0].length; index2++) {
+				if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+					onTablePoints[index1][index2] = 0;
+				}
+			}
+		}
+		temporaryPointCounter = 0;
+	}
+	console.log(singleLetterInLines);
+	return {
+		wordParameter: spelledWord,
+		pointParameter: temporaryPointCounter
+	};
+}
+
+
+function spelledWordCheckInColumns() {
+	var wordsInColumns = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+	var pointsInColumns = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	var singleLetterInColumns = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	var isUpperCase = false;
+	var isLowerCase = false;
+	var rowLength = 12;
+	var columnLength = 16;
+	//Letter check in columns
+	//first row letter check in columns
+	for (var k=0; k<columnLength; k++) {
+		if (onTableLetters[0][k] != 0 && onTableLetters[1][k] != 0) {
+			wordsInColumns[k] = wordsInColumns[k].concat(onTableLetters[0][k]); pointsInColumns[k] += onTablePoints[0][k];
+		} else if (onTableLetters[0][k] != 0 && onTableLetters[1][k] == 0 && onTableLetters[0][k] != onTableLetters[0][k].toUpperCase()) {
+			singleLetterInColumns[k] +=1;
+		} else ;
+		//columns letter check between first and last row
+		for (var j=1; j<rowLength-1; j++) {
+			if (wordsInColumns[k].length <= 1) {
+				if (onTableLetters[j][k] != 0 && onTableLetters[j-1][k] != 0) {
+					wordsInColumns[k] = wordsInColumns[k].concat(onTableLetters[j][k]); pointsInColumns[k] += onTablePoints[j][k];
+				} else if (onTableLetters[j][k] != 0 && onTableLetters[j+1][k] != 0) {
+					wordsInColumns[k] = wordsInColumns[k].concat(onTableLetters[j][k]); pointsInColumns[k] += onTablePoints[j][k];
+				} else if (onTableLetters[j][k] != 0 && onTableLetters[j+1][k] == 0 && onTableLetters[j-1][k] == 0 && onTableLetters[j][k] != onTableLetters[j][k].toUpperCase()) {
+					singleLetterInColumns[k] +=1;
+				} else {continue;}
+			} else if (onTableLetters[j][k] != 0 && onTableLetters[j-1][k] != 0) {
+				wordsInColumns[k] = wordsInColumns[k].concat(onTableLetters[j][k]); pointsInColumns[k] += onTablePoints[j][k];
+			} else if (onTableLetters[j][k] != 0 && onTableLetters[j-1][k] == 0) {
+				wordsInColumns[k] = "Fail!";
+				console.log("Fail8");
+				for(var index1=0; index1<onTableLetters.length; index1++) {
+					for(var index2=0; index2<onTableLetters[0].length; index2++) {
+						if(onTableLetters[index1][index2] != 0) {
+							if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+								onTableLetters[index1][index2] = 0;
+							}
+						}
+					}
+				}
+				for(var index1=0; index1<onTablePoints.length; index1++) {
+					for(var index2=0; index2<onTablePoints[0].length; index2++) {
+						if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+							onTablePoints[index1][index2] = 0;
+						}
+					}
+				}
+				console.log(singleLetterInColumns);
+				return {wordParameter : wordsInColumns[k], pointParameter : 0};
+			} else ;
+		}
+		//last row letter check in columns
+		if (wordsInColumns[k].length >= 1) {
+			if (onTableLetters[11][k] != 0 && onTableLetters[10][k] != 0) {
+				wordsInColumns[k] = wordsInColumns[k].concat(onTableLetters[11][k]); pointsInColumns[k] += onTablePoints[11][k];
+			} else if (onTableLetters[11][k] != 0 && onTableLetters[10][k] == 0) {
+				wordsInColumns[k] = "Fail!";
+				console.log("Fail9");
+				for(var index1=0; index1<onTableLetters.length; index1++) {
+					for(var index2=0; index2<onTableLetters[0].length; index2++) {
+						if(onTableLetters[index1][index2] != 0) {
+							if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+								onTableLetters[index1][index2] = 0;
+							}
+						}
+					}
+				}
+				for(var index1=0; index1<onTablePoints.length; index1++) {
+					for(var index2=0; index2<onTablePoints[0].length; index2++) {
+						if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+							onTablePoints[index1][index2] = 0;
+						}
+					}
+				}
+				console.log(singleLetterInColumns);
+				return {wordParameter : wordsInColumns[k], pointParameter : 0};
+			} else ;
+		} else if (onTableLetters[11][k] != 0 && onTableLetters[10][k] == 0 && onTableLetters[11][k] != onTableLetters[11][k].toUpperCase()) {
+			singleLetterInColumns[k] +=1;
+		} else ;
+		//check if there is no single letters around a spelled word
+		if (wordsInColumns[k].length > 1 && singleLetterInColumns[k] >= 1) {
+			wordsInColumns[k] = "Fail!";
+			console.log("Fail10");
+			for(var index1=0; index1<onTableLetters.length; index1++) {
+				for(var index2=0; index2<onTableLetters[0].length; index2++) {
+					if(onTableLetters[index1][index2] != 0) {
+						if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+							onTableLetters[index1][index2] = 0;
+						}
+					}
+				}
+			}
+			for(var index1=0; index1<onTablePoints.length; index1++) {
+				for(var index2=0; index2<onTablePoints[0].length; index2++) {
+					if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+						onTablePoints[index1][index2] = 0;
+					}
+				}
+			}
+			console.log(singleLetterInColumns);
+			return {wordParameter : wordsInColumns[k], pointParameter : 0};
+		} else if (singleLetterInColumns[k] > 1) {
+			wordsInColumns[k] = "Fail!";
+			console.log("Fail11");
+			for(var index1=0; index1<onTableLetters.length; index1++) {
+				for(var index2=0; index2<onTableLetters[0].length; index2++) {
+					if(onTableLetters[index1][index2] != 0) {
+						if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+							onTableLetters[index1][index2] = 0;
+						}
+					}
+				}
+			}
+			for(var index1=0; index1<onTablePoints.length; index1++) {
+				for(var index2=0; index2<onTablePoints[0].length; index2++) {
+					if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+						onTablePoints[index1][index2] = 0;
+					}
+				}
+			}
+			console.log(singleLetterInColumns);
+			return {wordParameter : wordsInColumns[k], pointParameter : 0};
+		} else ;
+		//check if there is a spelled word in this line and is it correct or not
+		if (wordsInColumns[k].length > 1) {
+			for (var i=0; i<wordsInColumns[k].length; i++) {
+				isUpperCase = false; isLowerCase = false;
+				var character = wordsInColumns[k].charAt(i);
+				if (character == character.toUpperCase()) {
+					isUpperCase = true; break;
+				} else continue ;
+			}
+			for (var i=0; i<wordsInColumns[k].length; i++) {
+				var character = wordsInColumns[k].charAt(i);
+				if (character == character.toLowerCase()) {
+					isLowerCase = true; break;
+				} else continue ;
+			}
+			if (isUpperCase == true && isLowerCase == true) {
+				;
+			} else if (isUpperCase == true && isLowerCase == false) {
+				wordsInColumns[k] = "";
+			} else { wordsInColumns[k] = "Fail!";
+			console.log("Fail12");
+			for(var index1=0; index1<onTableLetters.length; index1++) {
+				for(var index2=0; index2<onTableLetters[0].length; index2++) {
+					if(onTableLetters[index1][index2] != 0) {
+						if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+							onTableLetters[index1][index2] = 0;
+						}
+					}
+				}
+			}
+			for(var index1=0; index1<onTablePoints.length; index1++) {
+				for(var index2=0; index2<onTablePoints[0].length; index2++) {
+					if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+						onTablePoints[index1][index2] = 0;
+					}
+				}
+			}
+			console.log(singleLetterInColumns);
+			return {wordParameter : wordsInColumns[k], pointParameter : 0}; }
+		} else ;
+	}
+	
+	//check if there is only one right word on the table or there is no right word spelled
+	var spelledWord = "";
+	var temporaryPointCounter = 0;
+	var rightWord = 0;
+	for (var i=0; i<columnLength; i++) {
+		if (wordsInColumns[i] != "") {
+			rightWord += 1;
+			rightWordPlace = i;
+			rightPointPlace = i;
+		}
+	}
+	if (rightWord == 1) {
+		for (var i=0; i<singleLetterInColumns.length; i++) {
+			if (singleLetterInColumns[i] > 0) {
+				spelledWord = "Fail!";
+				console.log("Fail13");
+				for(var index1=0; index1<onTableLetters.length; index1++) {
+					for(var index2=0; index2<onTableLetters[0].length; index2++) {
+						if(onTableLetters[index1][index2] != 0) {
+							if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+								onTableLetters[index1][index2] = 0;
+							}
+						}
+					}
+				}
+				for(var index1=0; index1<onTablePoints.length; index1++) {
+					for(var index2=0; index2<onTablePoints[0].length; index2++) {
+						if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+							onTablePoints[index1][index2] = 0;
+						}
+					}
+				}
+				temporaryPointCounter = 0;
+			} else ;
+		}
+		if (spelledWord != "Fail!") {
+			spelledWord = wordsInColumns[rightWordPlace]; 
+			temporaryPointCounter = pointsInColumns[rightPointPlace];
+		} else ;
+	} else if (rightWord == 0) {
+		spelledWord = "";
+		temporaryPointCounter = 0;
+	} else {
+		spelledWord = "Fail!";
+		console.log("Fail14");
+		for(var index1=0; index1<onTableLetters.length; index1++) {
+			for(var index2=0; index2<onTableLetters[0].length; index2++) {
+				if(onTableLetters[index1][index2] != 0) {
+					if(onTableLetters[index1][index2] != onTableLetters[index1][index2].toUpperCase()) {
+						onTableLetters[index1][index2] = 0;
+					}
+				}
+			}
+		}
+		for(var index1=0; index1<onTablePoints.length; index1++) {
+			for(var index2=0; index2<onTablePoints[0].length; index2++) {
+				if(onTablePoints[index1][index2] != 0 && onTablePoints[index1][index2] != 10) {
+					onTablePoints[index1][index2] = 0;
+				}
+			}
+		}
+		temporaryPointCounter = 0;
+	}
+	console.log(singleLetterInColumns);
+	return {
+		wordParameter: spelledWord,
+		pointParameter: temporaryPointCounter
+	};
+}
+
+
+
+function wordCheckerThings() {
+
+	console.log(onTableLetters);
+	console.log(onTablePoints);
+	
+	var UserWordAndPoint = spelledWordCheckInRows();
+	var gotWord = UserWordAndPoint.wordParameter;
+	var gotPoints = UserWordAndPoint.pointParameter;
+	
+	console.log("GotWordRow: " + gotWord);
+	console.log("GotPointsRow: " + gotPoints);
+	
+	if (gotWord == "Fail!") {
+		document.getElementById("kijelzo").innerHTML = "A kirakott szó sajnos<br>nem felel meg a<br>szabályoknak.";
+		//var fordulok = document.getElementById("kijelzo").innerHTML = "A(z) " + turnCounterOnScreen + ". forduló<br>következik.";
+		setTimeout(function(){ document.getElementById("kijelzo").innerHTML = "A(z) " + turnCounterOnScreen + ". forduló<br>következik."; }, 2000);
+		setTimeout(clear, 2000);
+		//newTurn();
+	} else if (gotWord == "") {
+		UserWordAndPoint = spelledWordCheckInColumns();
+		gotWord = UserWordAndPoint.wordParameter;
+		gotPoints = UserWordAndPoint.pointParameter;
+
+		console.log("GotWordColumn: " + gotWord);
+		console.log("GotPointsColumn: " + gotPoints);
+
+		if (gotWord == "Fail!") {
+			document.getElementById("kijelzo").innerHTML = "A kirakott szó sajnos<br>nem felel meg a<br>szabályoknak.";
+			//var fordulok2 = document.getElementById("kijelzo").innerHTML = "A(z) " + turnCounterOnScreen + ". forduló<br>következik.";
+			setTimeout(function(){ document.getElementById("kijelzo").innerHTML = "A(z) " + turnCounterOnScreen + ". forduló<br>következik."; }, 2000);
+			setTimeout(clear, 2000);
+			//newTurn();
+		} else if (gotWord == "") {
+			var gamerName = document.getElementById("login").innerHTML;
+			//setTimeout(function(){ document.getElementById("kijelzo").innerHTML = gamerName + " ebben a körben<br>nem tudott szót kirakni."; }, 2000);
+			document.getElementById("kijelzo").innerHTML = gamerName + " ebben a körben<br>nem tudott szót kirakni.";
+			setTimeout(function(){ document.getElementById("kijelzo").innerHTML = "A(z) " + turnCounterOnScreen + ". forduló<br>következik."; }, 2000);
+			setTimeout(clear, 2000);
+			//newTurn();
+		} else if (gotWord != "Fail!") {
+			//ajax query for word checking
+			wordCheck(gotWord, gotPoints);
+			isTheWordRightCheckEndOfTurn(gotWord, gotPoints);
+			searchWordToConvert();
+			userPoints += gotPoints;
+			setTimeout(function(){ document.getElementById("kijelzo").innerHTML = "A(z) " + turnCounterOnScreen + ". forduló<br>következik."; }, 2000);
+			setTimeout(clear, 2000);
+			newTurn();
+		}
+	} else if (gotWord != "Fail!") {
+		//ajax query for word checking
+		wordCheck(gotWord, gotPoints);
+		isTheWordRightCheckEndOfTurn(gotWord, gotPoints);
+		searchWordToConvert();
+		userPoints += gotPoints;
+		setTimeout(function(){ document.getElementById("kijelzo").innerHTML = "A(z) " + turnCounterOnScreen + ". forduló<br>következik."; }, 2000);
+		setTimeout(clear, 2000);
+		newTurn();
+	}
+	
+	//position changing of letters in shapes array (moving back to bottom)
+	var xCounter = 230;
+	var yCounter = 410;
+	for(var i=0; i<shapes.length; i++) {
+		shapes[i].x = xCounter;
+		shapes[i].y = yCounter;
+		xCounter += 45;
+	}
+}
+
+
+
+function endOfTurn() {
+	document.getElementById("timer").style.color = "red";
+	document.getElementById("turnCounter").innerHTML = "";
+	
+	console.log("turnCounterOnScreen = " + turnCounterOnScreen);
+	console.log(onTableLetters);
+	console.log(onTablePoints);
+}
+
+
+var fordulo;
+
+function pushLetters() {
+	shapes.push({x:230,y:410,width:28,height:28,betu:"c",szam:4,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:275,y:410,width:28,height:28,betu:"a",szam:6,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:320,y:410,width:28,height:28,betu:"f",szam:2,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:365,y:410,width:28,height:28,betu:"a",szam:9,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:410,y:410,width:28,height:28,betu:"t",szam:0,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:455,y:410,width:28,height:28,betu:"i",szam:3,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:500,y:410,width:28,height:28,betu:"n",szam:5,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:545,y:410,width:28,height:28,betu:"k",szam:7,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:590,y:410,width:28,height:28,betu:"e",szam:1,color:"#F0E68C",colorszam:"black",isDragging:false});
+	shapes.push({x:635,y:410,width:28,height:28,betu:"n",szam:8,color:"#F0E68C",colorszam:"black",isDragging:false});
+}
+
+function emptyLetters() {
+	//shapes.splice(0,shapes.length);
+	shapes.length = 0;
+}
+
+var OKButtonClicked = false;
+
+function addEventListeners() {
+	document.getElementById("canvas3").addEventListener("mousedown", myDown);
+	document.getElementById("canvas3").addEventListener("mouseup", myUp);
+	document.getElementById("canvas3").addEventListener("mousemove", myMove);
+	document.getElementById("OK").addEventListener("click", clickOnOKButton);
+	document.getElementById("szotar").addEventListener("click", wordCheckDuringTurn);
+}
+
+function clickOnOKButton() {
+	OKButtonClicked = true;
+	oraEsBetukLeallit();
+}
+
+function removeEventListeners() {
+	document.getElementById("canvas3").removeEventListener("mousedown", myDown);
+	document.getElementById("canvas3").removeEventListener("mouseup", myUp);
+	document.getElementById("canvas3").removeEventListener("mousemove", myMove);
+	document.getElementById("OK").removeEventListener("click", clickOnOKButton);
+	document.getElementById("szotar").removeEventListener("click", wordCheckDuringTurn);
+}
+
+function searchWordToConvert() {
+	var arrayOfCoordinates = [];
+	for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+		for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+			if (onTableLetters[index1][index2] != 0 && onTableLetters[index1][index2] == onTableLetters[index1][index2].toLowerCase()) {
+				arrayOfCoordinates.push(v);
+				arrayOfCoordinates.push(f);
+				arrayOfCoordinates.push(onTableLetters[index1][index2]);
+				onTablePoints[index1][index2] = 10;
+				
+				console.log(onTableLetters[index1][index2]);
+				onTableLetters[index1][index2] = onTableLetters[index1][index2].toUpperCase();
+			}
+		}
+	}
+	for(var i=0; i<arrayOfCoordinates.length; i+=3) {
+		myGameArea.clearAfterRightWord(arrayOfCoordinates[i], arrayOfCoordinates[i+1], arrayOfCoordinates[i+2]);
+	}
+	var updateFixed = setInterval(updateFixedLetters, 20);
+}
+	
+var ora;
+
+function clock() {
+	ora = setInterval(f,1000);
+}
+
+var start = Date.now(), r = document.getElementById("timer");
+function f() {
+	var diff = Date.now()-start, ns = (((2e5-diff)/1000)>>0), m = (ns/60)>>0, s = ns-m*60; //0.16e5
+	r.textContent = m+':'+((''+s).length>1?'':'0')+s;
+	/*
+	console.log("Date.now = " + Date.now());
+	console.log("start = " + start);
+	console.log("diff = " + diff);
+	console.log("ns = " + ns);
+	console.log("m = " + m);
+	console.log("s = " + s);
+	*/
+	if (OKButtonClicked == false) {
+		if (diff > (2e5)) {oraEsBetukLeallit()}
+	} else { ; }
+	return ;
+}	
+	
+function Random10BetuKirajzol() {
+	//start clock and call to draw the scene
+	pushLetters();
+	clock();
+	fordulo = setInterval(draw, 20);
+	addEventListeners();
+	
+}
+	
+// handle mousedown events
+function myDown(e){
+
+	// tell the browser we're handling this mouse event
+	e.preventDefault();
+	e.stopPropagation();
+
+	// get the current mouse position
+	var mx=parseInt(e.clientX-movingLetterArea.offsetX);
+	var my=parseInt(e.clientY-movingLetterArea.offsetY);
+
+	// test each shape to see if mouse is inside
+	movingLetterArea.dragok=false;
+	for(var i=0;i<shapes.length;i++){
+		var s=shapes[i];
+		if(mx>s.x && mx<s.x+s.width && my>s.y && my<s.y+s.height){
+			// if yes, set that rects isDragging=true
+			movingLetterArea.dragok=true;
+			s.isDragging=true;
+		}	
+	}
+
+	// save the current mouse position
+	movingLetterArea.startX=mx;
+	movingLetterArea.startY=my;
+}
+
+
+// handle mouseup events
+function myUp(e){
+ 
+	// tell the browser we're handling this mouse event
+	e.preventDefault();
+	e.stopPropagation();
+
+	// clear all the dragging flags
+	movingLetterArea.dragok = false;
+	for(var i=0;i<shapes.length;i++){
+		shapes[i].isDragging=false;
+	}
+}
+
+
+// handle mouse moves
+function myMove(e){
+
+	// if we're dragging anything...
+	if (movingLetterArea.dragok){
+		// tell the browser we're handling this mouse event
+		e.preventDefault();
+		e.stopPropagation();
+
+		// get the current mouse position
+		var mx=parseInt(e.clientX-movingLetterArea.offsetX);
+		var my=parseInt(e.clientY-movingLetterArea.offsetY);
+
+		// calculate the distance the mouse has moved
+		// since the last mousemove
+		var dx=mx-movingLetterArea.startX;
+		var dy=my-movingLetterArea.startY;
+
+		/*
+		move each rect that isDragging 
+		by the distance the mouse has moved
+		since the last mousemove
+		*/
+		for(var i=0;i<shapes.length;i++){
+			var s=shapes[i];
+			if(s.isDragging){
+				s.x+=dx;
+				s.y+=dy;
+			}
+		}
+		
+		// redraw the scene with the new rect positions
+		//draw();
+
+		// reset the starting mouse position for the next mousemove
+		movingLetterArea.startX=mx;
+		movingLetterArea.startY=my;
+		}
+	else {
+		// tell the browser we're handling this mouse event
+		e.preventDefault();
+		e.stopPropagation();
+
+		// get the current mouse position
+		var mx=parseInt(e.clientX-movingLetterArea.offsetX);
+		var my=parseInt(e.clientY-movingLetterArea.offsetY);
+
+		// calculate the distance the mouse has moved
+		// since the last mousemove
+		var dx=mx-movingLetterArea.startX;
+		var dy=my-movingLetterArea.startY;
+
+		/*
+		move each rect that isDragging 
+		by the distance the mouse has moved
+		since the last mousemove
+		*/
+		for(var i=0;i<shapes.length;i++){
+			//var s=shapes[i];
+			if(shapes[i].isDragging){
+				shapes[i].x+=dx;
+				shapes[i].y+=dy;
+			}
+			
+			//a betű elengedése után adott négyzetbe belerángatás
+			for(var k=10; k<370; k+=30)
+			{
+				for(var j=210; j<720; j+=30)
+				{
+					if(shapes[i].x+14>j && shapes[i].x+14<=j+30 && shapes[i].y+14>k && shapes[i].y+14<=k+30)
+					{
+						shapes[i].x = j+1;
+						shapes[i].y = k+1;
+					}
+				}
+			}
+			
+			//fixen a táblán lévő betűkről ledobás
+			for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+				for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+					if(onTableLetters[index1][index2] != 0) {
+						if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase() && shapes[i].x > v-1 && shapes[i].x < v+29 && shapes[i].y > f-1 && shapes[i].y < f+29) {
+							shapes[i].x -= 30;
+							shapes[i].y += 30;
+						}
+					}
+				}
+			}
+			
+			//sorok:
+			//211, 241, 271, 301, 331, 361, 391, 421, 451,
+			//481, 511, 541, 571, 601, 631, 661
+			//oszlopok:
+			//11, 41, 71, 101, 131, 161, 191, 221, 251, 281, 311, 341
+			
+			//betűk egymásról ledobása és a táblára kirakott betűk tömbbe pakolása
+			if(i==0)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i+3].x && shapes[i].x+14 < shapes[i+3].x+28) && (shapes[i].y+14 > shapes[i+3].y && shapes[i].y+14 < shapes[i+3].y+28) ||
+				(shapes[i].x+14 > shapes[i+4].x && shapes[i].x+14 < shapes[i+4].x+28) && (shapes[i].y+14 > shapes[i+4].y && shapes[i].y+14 < shapes[i+4].y+28) ||
+				(shapes[i].x+14 > shapes[i+5].x && shapes[i].x+14 < shapes[i+5].x+28) && (shapes[i].y+14 > shapes[i+5].y && shapes[i].y+14 < shapes[i+5].y+28) ||
+				(shapes[i].x+14 > shapes[i+6].x && shapes[i].x+14 < shapes[i+6].x+28) && (shapes[i].y+14 > shapes[i+6].y && shapes[i].y+14 < shapes[i+6].y+28) ||
+				(shapes[i].x+14 > shapes[i+7].x && shapes[i].x+14 < shapes[i+7].x+28) && (shapes[i].y+14 > shapes[i+7].y && shapes[i].y+14 < shapes[i+7].y+28) ||
+				(shapes[i].x+14 > shapes[i+8].x && shapes[i].x+14 < shapes[i+8].x+28) && (shapes[i].y+14 > shapes[i+8].y && shapes[i].y+14 < shapes[i+8].y+28) ||
+				(shapes[i].x+14 > shapes[i+9].x && shapes[i].x+14 < shapes[i+9].x+28) && (shapes[i].y+14 > shapes[i+9].y && shapes[i].y+14 < shapes[i+9].y+28))
+				{
+					shapes[i].x += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i+3].x == v && shapes[i+3].y == f) ||
+									(shapes[i+4].x == v && shapes[i+4].y == f) ||
+									(shapes[i+5].x == v && shapes[i+5].y == f) ||
+									(shapes[i+6].x == v && shapes[i+6].y == f) ||
+									(shapes[i+7].x == v && shapes[i+7].y == f) ||
+									(shapes[i+8].x == v && shapes[i+8].y == f) ||
+									(shapes[i+9].x == v && shapes[i+9].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}	
+			}
+			else if(i==1)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i+3].x && shapes[i].x+14 < shapes[i+3].x+28) && (shapes[i].y+14 > shapes[i+3].y && shapes[i].y+14 < shapes[i+3].y+28) ||
+				(shapes[i].x+14 > shapes[i+4].x && shapes[i].x+14 < shapes[i+4].x+28) && (shapes[i].y+14 > shapes[i+4].y && shapes[i].y+14 < shapes[i+4].y+28) ||
+				(shapes[i].x+14 > shapes[i+5].x && shapes[i].x+14 < shapes[i+5].x+28) && (shapes[i].y+14 > shapes[i+5].y && shapes[i].y+14 < shapes[i+5].y+28) ||
+				(shapes[i].x+14 > shapes[i+6].x && shapes[i].x+14 < shapes[i+6].x+28) && (shapes[i].y+14 > shapes[i+6].y && shapes[i].y+14 < shapes[i+6].y+28) ||
+				(shapes[i].x+14 > shapes[i+7].x && shapes[i].x+14 < shapes[i+7].x+28) && (shapes[i].y+14 > shapes[i+7].y && shapes[i].y+14 < shapes[i+7].y+28) ||
+				(shapes[i].x+14 > shapes[i+8].x && shapes[i].x+14 < shapes[i+8].x+28) && (shapes[i].y+14 > shapes[i+8].y && shapes[i].y+14 < shapes[i+8].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i+3].x == v && shapes[i+3].y == f) ||
+									(shapes[i+4].x == v && shapes[i+4].y == f) ||
+									(shapes[i+5].x == v && shapes[i+5].y == f) ||
+									(shapes[i+6].x == v && shapes[i+6].y == f) ||
+									(shapes[i+7].x == v && shapes[i+7].y == f) ||
+									(shapes[i+8].x == v && shapes[i+8].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}	
+			}
+			else if(i==2)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i+3].x && shapes[i].x+14 < shapes[i+3].x+28) && (shapes[i].y+14 > shapes[i+3].y && shapes[i].y+14 < shapes[i+3].y+28) ||
+				(shapes[i].x+14 > shapes[i+4].x && shapes[i].x+14 < shapes[i+4].x+28) && (shapes[i].y+14 > shapes[i+4].y && shapes[i].y+14 < shapes[i+4].y+28) ||
+				(shapes[i].x+14 > shapes[i+5].x && shapes[i].x+14 < shapes[i+5].x+28) && (shapes[i].y+14 > shapes[i+5].y && shapes[i].y+14 < shapes[i+5].y+28) ||
+				(shapes[i].x+14 > shapes[i+6].x && shapes[i].x+14 < shapes[i+6].x+28) && (shapes[i].y+14 > shapes[i+6].y && shapes[i].y+14 < shapes[i+6].y+28) ||
+				(shapes[i].x+14 > shapes[i+7].x && shapes[i].x+14 < shapes[i+7].x+28) && (shapes[i].y+14 > shapes[i+7].y && shapes[i].y+14 < shapes[i+7].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i+3].x == v && shapes[i+3].y == f) ||
+									(shapes[i+4].x == v && shapes[i+4].y == f) ||
+									(shapes[i+5].x == v && shapes[i+5].y == f) ||
+									(shapes[i+6].x == v && shapes[i+6].y == f) ||
+									(shapes[i+7].x == v && shapes[i+7].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+			else if(i==3)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i+3].x && shapes[i].x+14 < shapes[i+3].x+28) && (shapes[i].y+14 > shapes[i+3].y && shapes[i].y+14 < shapes[i+3].y+28) ||
+				(shapes[i].x+14 > shapes[i+4].x && shapes[i].x+14 < shapes[i+4].x+28) && (shapes[i].y+14 > shapes[i+4].y && shapes[i].y+14 < shapes[i+4].y+28) ||
+				(shapes[i].x+14 > shapes[i+5].x && shapes[i].x+14 < shapes[i+5].x+28) && (shapes[i].y+14 > shapes[i+5].y && shapes[i].y+14 < shapes[i+5].y+28) ||
+				(shapes[i].x+14 > shapes[i+6].x && shapes[i].x+14 < shapes[i+6].x+28) && (shapes[i].y+14 > shapes[i+6].y && shapes[i].y+14 < shapes[i+6].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28) ||
+				(shapes[i].x+14 > shapes[i-3].x && shapes[i].x+14 < shapes[i-3].x+28) && (shapes[i].y+14 > shapes[i-3].y && shapes[i].y+14 < shapes[i-3].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i+3].x == v && shapes[i+3].y == f) ||
+									(shapes[i+4].x == v && shapes[i+4].y == f) ||
+									(shapes[i+5].x == v && shapes[i+5].y == f) ||
+									(shapes[i+6].x == v && shapes[i+6].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f) ||
+									(shapes[i-3].x == v && shapes[i-3].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+			else if(i==4)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i+3].x && shapes[i].x+14 < shapes[i+3].x+28) && (shapes[i].y+14 > shapes[i+3].y && shapes[i].y+14 < shapes[i+3].y+28) ||
+				(shapes[i].x+14 > shapes[i+4].x && shapes[i].x+14 < shapes[i+4].x+28) && (shapes[i].y+14 > shapes[i+4].y && shapes[i].y+14 < shapes[i+4].y+28) ||
+				(shapes[i].x+14 > shapes[i+5].x && shapes[i].x+14 < shapes[i+5].x+28) && (shapes[i].y+14 > shapes[i+5].y && shapes[i].y+14 < shapes[i+5].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28) ||
+				(shapes[i].x+14 > shapes[i-3].x && shapes[i].x+14 < shapes[i-3].x+28) && (shapes[i].y+14 > shapes[i-3].y && shapes[i].y+14 < shapes[i-3].y+28) ||
+				(shapes[i].x+14 > shapes[i-4].x && shapes[i].x+14 < shapes[i-4].x+28) && (shapes[i].y+14 > shapes[i-4].y && shapes[i].y+14 < shapes[i-4].y+28))
+				{
+					shapes[i].y += 30;				
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i+3].x == v && shapes[i+3].y == f) ||
+									(shapes[i+4].x == v && shapes[i+4].y == f) ||
+									(shapes[i+5].x == v && shapes[i+5].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f) ||
+									(shapes[i-3].x == v && shapes[i-3].y == f) ||
+									(shapes[i-4].x == v && shapes[i-4].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+			else if(i==5)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i+3].x && shapes[i].x+14 < shapes[i+3].x+28) && (shapes[i].y+14 > shapes[i+3].y && shapes[i].y+14 < shapes[i+3].y+28) ||
+				(shapes[i].x+14 > shapes[i+4].x && shapes[i].x+14 < shapes[i+4].x+28) && (shapes[i].y+14 > shapes[i+4].y && shapes[i].y+14 < shapes[i+4].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28) ||
+				(shapes[i].x+14 > shapes[i-3].x && shapes[i].x+14 < shapes[i-3].x+28) && (shapes[i].y+14 > shapes[i-3].y && shapes[i].y+14 < shapes[i-3].y+28) ||
+				(shapes[i].x+14 > shapes[i-4].x && shapes[i].x+14 < shapes[i-4].x+28) && (shapes[i].y+14 > shapes[i-4].y && shapes[i].y+14 < shapes[i-4].y+28) ||
+				(shapes[i].x+14 > shapes[i-5].x && shapes[i].x+14 < shapes[i-5].x+28) && (shapes[i].y+14 > shapes[i-5].y && shapes[i].y+14 < shapes[i-5].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i+3].x == v && shapes[i+3].y == f) ||
+									(shapes[i+4].x == v && shapes[i+4].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f) ||
+									(shapes[i-3].x == v && shapes[i-3].y == f) ||
+									(shapes[i-4].x == v && shapes[i-4].y == f) ||
+									(shapes[i-5].x == v && shapes[i-5].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+			else if(i==6)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i+3].x && shapes[i].x+14 < shapes[i+3].x+28) && (shapes[i].y+14 > shapes[i+3].y && shapes[i].y+14 < shapes[i+3].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28) ||
+				(shapes[i].x+14 > shapes[i-3].x && shapes[i].x+14 < shapes[i-3].x+28) && (shapes[i].y+14 > shapes[i-3].y && shapes[i].y+14 < shapes[i-3].y+28) ||
+				(shapes[i].x+14 > shapes[i-4].x && shapes[i].x+14 < shapes[i-4].x+28) && (shapes[i].y+14 > shapes[i-4].y && shapes[i].y+14 < shapes[i-4].y+28) ||
+				(shapes[i].x+14 > shapes[i-5].x && shapes[i].x+14 < shapes[i-5].x+28) && (shapes[i].y+14 > shapes[i-5].y && shapes[i].y+14 < shapes[i-5].y+28) ||
+				(shapes[i].x+14 > shapes[i-6].x && shapes[i].x+14 < shapes[i-6].x+28) && (shapes[i].y+14 > shapes[i-6].y && shapes[i].y+14 < shapes[i-6].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i+3].x == v && shapes[i+3].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f) ||
+									(shapes[i-3].x == v && shapes[i-3].y == f) ||
+									(shapes[i-4].x == v && shapes[i-4].y == f) ||
+									(shapes[i-5].x == v && shapes[i-5].y == f) ||
+									(shapes[i-6].x == v && shapes[i-6].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+			else if(i==7)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i+2].x && shapes[i].x+14 < shapes[i+2].x+28) && (shapes[i].y+14 > shapes[i+2].y && shapes[i].y+14 < shapes[i+2].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28) ||
+				(shapes[i].x+14 > shapes[i-3].x && shapes[i].x+14 < shapes[i-3].x+28) && (shapes[i].y+14 > shapes[i-3].y && shapes[i].y+14 < shapes[i-3].y+28) ||
+				(shapes[i].x+14 > shapes[i-4].x && shapes[i].x+14 < shapes[i-4].x+28) && (shapes[i].y+14 > shapes[i-4].y && shapes[i].y+14 < shapes[i-4].y+28) ||
+				(shapes[i].x+14 > shapes[i-5].x && shapes[i].x+14 < shapes[i-5].x+28) && (shapes[i].y+14 > shapes[i-5].y && shapes[i].y+14 < shapes[i-5].y+28) ||
+				(shapes[i].x+14 > shapes[i-6].x && shapes[i].x+14 < shapes[i-6].x+28) && (shapes[i].y+14 > shapes[i-6].y && shapes[i].y+14 < shapes[i-6].y+28) ||
+				(shapes[i].x+14 > shapes[i-7].x && shapes[i].x+14 < shapes[i-7].x+28) && (shapes[i].y+14 > shapes[i-7].y && shapes[i].y+14 < shapes[i-7].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i+2].x == v && shapes[i+2].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f) ||
+									(shapes[i-3].x == v && shapes[i-3].y == f) ||
+									(shapes[i-4].x == v && shapes[i-4].y == f) ||
+									(shapes[i-5].x == v && shapes[i-5].y == f) ||
+									(shapes[i-6].x == v && shapes[i-6].y == f) ||
+									(shapes[i-7].x == v && shapes[i-7].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+			else if(i==8)
+			{
+				if((shapes[i].x+14 > shapes[i+1].x && shapes[i].x+14 < shapes[i+1].x+28) && (shapes[i].y+14 > shapes[i+1].y && shapes[i].y+14 < shapes[i+1].y+28) ||
+				(shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28) ||
+				(shapes[i].x+14 > shapes[i-3].x && shapes[i].x+14 < shapes[i-3].x+28) && (shapes[i].y+14 > shapes[i-3].y && shapes[i].y+14 < shapes[i-3].y+28) ||
+				(shapes[i].x+14 > shapes[i-4].x && shapes[i].x+14 < shapes[i-4].x+28) && (shapes[i].y+14 > shapes[i-4].y && shapes[i].y+14 < shapes[i-4].y+28) ||
+				(shapes[i].x+14 > shapes[i-5].x && shapes[i].x+14 < shapes[i-5].x+28) && (shapes[i].y+14 > shapes[i-5].y && shapes[i].y+14 < shapes[i-5].y+28) ||
+				(shapes[i].x+14 > shapes[i-6].x && shapes[i].x+14 < shapes[i-6].x+28) && (shapes[i].y+14 > shapes[i-6].y && shapes[i].y+14 < shapes[i-6].y+28) ||
+				(shapes[i].x+14 > shapes[i-7].x && shapes[i].x+14 < shapes[i-7].x+28) && (shapes[i].y+14 > shapes[i-7].y && shapes[i].y+14 < shapes[i-7].y+28) ||
+				(shapes[i].x+14 > shapes[i-8].x && shapes[i].x+14 < shapes[i-8].x+28) && (shapes[i].y+14 > shapes[i-8].y && shapes[i].y+14 < shapes[i-8].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i+1].x == v && shapes[i+1].y == f) ||
+									(shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f) ||
+									(shapes[i-3].x == v && shapes[i-3].y == f) ||
+									(shapes[i-4].x == v && shapes[i-4].y == f) ||
+									(shapes[i-5].x == v && shapes[i-5].y == f) ||
+									(shapes[i-6].x == v && shapes[i-6].y == f) ||
+									(shapes[i-7].x == v && shapes[i-7].y == f) ||
+									(shapes[i-8].x == v && shapes[i-8].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+			else if(i==9)
+			{
+				if((shapes[i].x+14 > shapes[i-1].x && shapes[i].x+14 < shapes[i-1].x+28) && (shapes[i].y+14 > shapes[i-1].y && shapes[i].y+14 < shapes[i-1].y+28) ||
+				(shapes[i].x+14 > shapes[i-2].x && shapes[i].x+14 < shapes[i-2].x+28) && (shapes[i].y+14 > shapes[i-2].y && shapes[i].y+14 < shapes[i-2].y+28) ||
+				(shapes[i].x+14 > shapes[i-3].x && shapes[i].x+14 < shapes[i-3].x+28) && (shapes[i].y+14 > shapes[i-3].y && shapes[i].y+14 < shapes[i-3].y+28) ||
+				(shapes[i].x+14 > shapes[i-4].x && shapes[i].x+14 < shapes[i-4].x+28) && (shapes[i].y+14 > shapes[i-4].y && shapes[i].y+14 < shapes[i-4].y+28) ||
+				(shapes[i].x+14 > shapes[i-5].x && shapes[i].x+14 < shapes[i-5].x+28) && (shapes[i].y+14 > shapes[i-5].y && shapes[i].y+14 < shapes[i-5].y+28) ||
+				(shapes[i].x+14 > shapes[i-6].x && shapes[i].x+14 < shapes[i-6].x+28) && (shapes[i].y+14 > shapes[i-6].y && shapes[i].y+14 < shapes[i-6].y+28) ||
+				(shapes[i].x+14 > shapes[i-7].x && shapes[i].x+14 < shapes[i-7].x+28) && (shapes[i].y+14 > shapes[i-7].y && shapes[i].y+14 < shapes[i-7].y+28) ||
+				(shapes[i].x+14 > shapes[i-8].x && shapes[i].x+14 < shapes[i-8].x+28) && (shapes[i].y+14 > shapes[i-8].y && shapes[i].y+14 < shapes[i-8].y+28) ||
+				(shapes[i].x+14 > shapes[i-9].x && shapes[i].x+14 < shapes[i-9].x+28) && (shapes[i].y+14 > shapes[i-9].y && shapes[i].y+14 < shapes[i-9].y+28))
+				{
+					shapes[i].y += 30;
+				}
+				for(var f=11, index1=0; f<371, index1<onTableLetters.length; f+=30, index1++) {
+					for(var v=211, index2=0; v<691, index2<onTableLetters[0].length; v+=30, index2++) {
+						if(shapes[i].x == v && shapes[i].y == f) {onTableLetters[index1][index2] = shapes[i].betu; onTablePoints[index1][index2] = shapes[i].szam;}
+							else if ((shapes[i-1].x == v && shapes[i-1].y == f) ||
+									(shapes[i-2].x == v && shapes[i-2].y == f) ||
+									(shapes[i-3].x == v && shapes[i-3].y == f) ||
+									(shapes[i-4].x == v && shapes[i-4].y == f) ||
+									(shapes[i-5].x == v && shapes[i-5].y == f) ||
+									(shapes[i-6].x == v && shapes[i-6].y == f) ||
+									(shapes[i-7].x == v && shapes[i-7].y == f) ||
+									(shapes[i-8].x == v && shapes[i-8].y == f) ||
+									(shapes[i-9].x == v && shapes[i-9].y == f)) { continue; }
+							if(onTableLetters[index1][index2] != 0) {
+								if(onTableLetters[index1][index2] == onTableLetters[index1][index2].toUpperCase()) { continue; }
+							} else {onTableLetters[index1][index2] = 0; onTablePoints[index1][index2] = 0;}
+					}
+				}
+			}
+		}
+		
+		// reset the starting mouse position for the next mousemove
+		movingLetterArea.startX=mx;
+		movingLetterArea.startY=my;
+	}
+}
+</script>
+</body>
+</html>
